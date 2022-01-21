@@ -3,13 +3,14 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateGenreDto, CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
+import { UpdateGenreDto } from './dto/update-genre.dto';
 
 @Controller('movie')
 export class MovieController {
@@ -26,22 +27,37 @@ export class MovieController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.movieService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.movieService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMovieDto: UpdateMovieDto) {
-    return this.movieService.update(+id, updateMovieDto);
+  @Put(':id')
+  update(@Param('id') id: number, @Body() updateMovieDto: UpdateMovieDto) {
+    return this.movieService.update(id, updateMovieDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.movieService.remove(+id);
+  remove(@Param('id') id: number) {
+    return this.movieService.remove(id);
   }
 
   @Post('/genre')
   createGenre(@Body() createGenreDto: CreateGenreDto) {
     return this.movieService.createGenre(createGenreDto);
+  }
+
+  @Get('/genre')
+  getGenres() {
+    return this.movieService.getGenres();
+  }
+
+  @Get('/genre/:id')
+  findGenreById(@Param('id') id: number) {
+    return this.movieService.findGenreById(id);
+  }
+
+  @Put('/genre/:id')
+  updateGenreById(@Param('id') id: number, @Body() data: UpdateGenreDto) {
+    return this.movieService.updateGenreById(id, data);
   }
 }

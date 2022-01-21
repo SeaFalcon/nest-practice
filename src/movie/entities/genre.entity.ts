@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { CoreEntity } from './core.entity';
 import { Movie } from './movie.entity';
 
@@ -10,9 +16,12 @@ export class Genre extends CoreEntity {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ default: '' })
   description: string;
 
-  @ManyToOne(() => Movie, (movie) => movie.genres)
-  movie: Movie;
+  @ManyToMany(() => Movie, (movie) => movie.genres, {
+    onDelete: 'CASCADE',
+  })
+  @JoinTable()
+  movies: Movie[];
 }

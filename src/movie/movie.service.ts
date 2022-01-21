@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateGenreDto, CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateGenreDto } from './dto/update-genre.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Genre } from './entities/genre.entity';
 import { Movie } from './entities/movie.entity';
@@ -22,7 +23,7 @@ export class MovieService {
     for (const genre of genres) {
       const newGenre = await this.createGenre({ genre });
 
-      newGenre.movie = newMovie;
+      newGenre.movies = [newMovie];
       await this.genres.save(newGenre);
     }
 
@@ -37,15 +38,29 @@ export class MovieService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} movie`;
+    return this.movies.findOneOrFail(id);
   }
 
-  update(id: number, updateMovieDto: UpdateMovieDto) {
-    return `This action updates a #${id} movie`;
+  async update(id: number, { title, year, genres }: UpdateMovieDto) {
+    const willBeUpdatedMovie = await this.findOne(id);
+
+    willBeUpdatedMovie.title = title ? title : willBeUpdatedMovie.title;
+    willBeUpdatedMovie.year = year ? year : willBeUpdatedMovie.year;
+
+    if (genres) {
+      const genreEntities = [];
+      for (const genre of genres) {
+        const newGenre = await this.createGenre({ genre });
+        genreEntities.push(newGenre);
+      }
+      willBeUpdatedMovie.genres = genreEntities;
+    }
+
+    return this.movies.save(willBeUpdatedMovie);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} movie`;
+    return this.movies.delete(id);
   }
 
   async createGenre({ genre, description }: CreateGenreDto): Promise<Genre> {
@@ -63,5 +78,28 @@ export class MovieService {
 
   findGenreByName(name: string): Promise<Genre> {
     return this.genres.findOne({ where: { name } });
+  }
+
+  findGenreById(id: number): Promise<Genre> {
+    return this.genres.findOneOrFail(id);
+  }
+
+  getGenres() {
+    return this.genres.find();
+  }
+
+  async updateGenreById(id: number, { name, description }: UpdateGenreDto) {
+    const genre = await this.findGenreById(id);
+
+    genre.name = name ? name : genre.name;
+    genre.description = description ? description : genre.description;
+
+    await this.genres.save(genre);
+
+    return 'update genre success!';
+  }
+
+  deleteGenre(id: number) {
+    this.genres.delete({ id });
   }
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CoreEntity } from './core.entity';
 import { Genre } from './genre.entity';
 
@@ -13,6 +13,8 @@ export class Movie extends CoreEntity {
   @Column()
   year: number;
 
-  @OneToMany(() => Genre, (genre) => genre.movie)
+  @ManyToMany(() => Genre, (genre) => genre.movies, {
+    onDelete: 'CASCADE',
+  })
   genres: Genre[];
 }
